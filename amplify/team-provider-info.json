@@ -10,6 +10,11 @@
       "StackName": "amplify-communityconnector-dev-8acd8",
       "StackId": "arn:aws:cloudformation:us-east-2:992382470830:stack/amplify-communityconnector-dev-8acd8/1d4f7b10-14bc-11ef-862b-0ab6192bd9f9",
       "AmplifyAppId": "d2xeleczdya98w"
+    },
+    "categories": {
+      "auth": {
+        "communityconnector76b59520": {}
+      }
     }
   }
 }
