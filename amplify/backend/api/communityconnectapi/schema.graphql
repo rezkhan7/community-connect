@@ -17,7 +17,17 @@ type Post @model @auth(
   comments: [Comment] @connection(keyName: "byPost", fields: ["id"])
 }
 
-type Comment @model @key(name: "byPost", fields: ["postID", "content"]) {
+type Comment @model @key(name: "byPost", fields: ["postID", "content"]) 
+@auth(
+  rules: [
+    # Owner can perform all tasks on post
+    {allow: owner, operations: [create, update, delete, read]}, 
+    # Signed in users can only read
+    {allow: private, operations: [read]},
+    # The public can read even if they are not signed in 
+    {allow: public, operations: [read]}
+])
+{
   id: ID!
   postID: ID!
   post: Post @connection(fields: ["postID"])
