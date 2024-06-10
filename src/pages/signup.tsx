@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Button } from '@mui/material'
+import { Button, TextField } from '@mui/material'
 
 interface IFormInput {
     firstName: string,
@@ -18,6 +18,11 @@ export default function Signup() {
     console.log("Errors:", errors)
     return(
         <form onSubmit = {handleSubmit(onSubmit)}>
+          <TextField 
+            id = 'username' 
+            label = 'Username'
+            {...register('username', {required: true})} 
+          />
           <Button variant='contained' type='submit'> Sign up</Button>  
         </form>
     )
