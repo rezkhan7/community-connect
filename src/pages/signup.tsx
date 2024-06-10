@@ -9,11 +9,13 @@ interface IFormInput {
 }
 
 export default function Signup() {
-    const { control, handleSubmit } = useForm<IFormInput>();
+    const { register, errors, handleSubmit } = useForm<IFormInput>();
+
     const onSubmit: SubmitHandler<IFormInput> = (data)=>{
         console.log('Success')
         console.log(data)
     }
+    console.log("Errors:", errors)
     return(
         <form onSubmit = {handleSubmit(onSubmit)}>
           <Button variant='contained' type='submit'> Sign up</Button>  
