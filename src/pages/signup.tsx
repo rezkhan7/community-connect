@@ -15,7 +15,7 @@ export default function Signup() {
         console.log(data)
     }
     return(
-        <form>
+        <form onSubmit = {handleSubmit(onSubmit)}>
           <Button variant='contained' type='submit'> Sign up</Button>  
         </form>
     )
