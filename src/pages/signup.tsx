@@ -26,9 +26,12 @@ export default function Signup() {
             spacing = {2}
           >
             <Grid item>
-                <TextField 
+                <TextField
+                    variant= 'outlined'
                     id = 'username' 
                     label = 'Username'
+                    error = {errors.username ? true : false}
+                    helperText = {errors.username ? errors.username.message : null}
                     {...register('username', {
                         required: {value: true, message: 'Please enter a username.'},
                         minLength: {
