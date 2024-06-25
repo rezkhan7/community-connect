@@ -12,11 +12,41 @@ interface IFormInput {
 export default function Signup() {
     const { register, formState: {errors}, handleSubmit } = useForm<IFormInput>();
 
-    const onSubmit: SubmitHandler<IFormInput> = (data)=>{
+    const onSubmit: SubmitHandler<IFormInput> = async (data)=>{
         console.log('Success')
         console.log(data)
+
+        try{
+            handleSignUp(data);
+        }
+        catch(err){
+            console.error(err);
+        }
     }
     console.log("Errors:", errors)
+
+    async function handleSignUp(data: IFormInput) {
+        const { username, password, email } = data
+        try {
+          const { isSignUpComplete, userId, nextStep } = await signUp({
+            username,
+            password,
+            options: {
+              userAttributes: {
+                email
+              },
+              // optional
+              autoSignIn: true // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
+            }
+          });
+      
+          console.log(userId);
+        } catch (error) {
+          console.log('error signing up:', error);
+        }
+      }
+
+
     return(
         <form onSubmit = {handleSubmit(onSubmit)} autoComplete='off'>
           <Grid
