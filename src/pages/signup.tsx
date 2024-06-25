@@ -1,6 +1,7 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { Button, TextField, Grid } from '@mui/material'
+import { signUp } from 'aws-amplify/auth';
 
 interface IFormInput {
     username: string,
@@ -81,7 +82,7 @@ export default function Signup() {
                 />
             </Grid>
 
-            <Grid style={{marginTop: 16}}>
+            <Grid style={{marginTop: "16px"}}>
                 <Button variant='contained' type='submit'> Sign up</Button>
             </Grid>
           </Grid> 
