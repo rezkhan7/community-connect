@@ -137,8 +137,6 @@ export default function Signup() {
                 <Alert
                     onClose={handleClose}
                     severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
                 >
                     {signUpError}
                 </Alert>
