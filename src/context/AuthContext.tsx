@@ -1,7 +1,6 @@
 import { createContext, ReactElement, useEffect, useState } from "react";
-import { CognitoUser } from "amazon-cognito-identity-js";
 import { Hub } from "aws-amplify/utils";
-import { getCurrentUser } from "aws-amplify/auth";
+import { getCurrentUser, AuthUser } from "aws-amplify/auth";
 
 const UserContext = createContext();
 
@@ -10,17 +9,28 @@ interface Props {
 }
 
 export default function AuthContext({}: Props): ReactElement {
-  const [user, setUser] = useState<CognitoUser | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
+  
+  useEffect(()=>{
+    checkUser();
+  }, [])
 
   useEffect(()=>{
     Hub.listen('auth', ()=>{
-        checkUser()
+        checkUser();
     })
   }, [])
 
   async function checkUser() {
     try{
-        const user = await Amplify
+        const amplifyUser = await getCurrentUser()
+        if(amplifyUser){
+            setUser(amplifyUser)
+        }
+
+    }
+    catch(error){
+        setUser(null)
     }
   }
 
