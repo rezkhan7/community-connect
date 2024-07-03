@@ -1,11 +1,24 @@
-import { createContext, ReactElement, useEffect, useState } from "react";
+import { 
+    createContext,
+    Dispatch, 
+    ReactElement,
+    SetStateAction, 
+    useEffect,
+    useContext, 
+    useState } from "react";
 import { Hub } from "aws-amplify/utils";
 import { getCurrentUser, AuthUser } from "aws-amplify/auth";
 
-const UserContext = createContext();
+interface UserContextType{
+    user: AuthUser | null;
+    setUser: Dispatch<SetStateAction<AuthUser | null>>
+}
+
+const UserContext = createContext<UserContextType>({} as UserContextType);
 
 interface Props {
     children: ReactElement
+    setUser: Dispatch<SetStateAction<AuthUser | null>>
 }
 
 export default function AuthContext({}: Props): ReactElement {
@@ -42,3 +55,5 @@ export default function AuthContext({}: Props): ReactElement {
     </UserContext.Provider>
   )
 }
+
+export const useUser = (): UserContextType => useContext(UserContext)
