@@ -21,7 +21,7 @@ interface Props {
     setUser: Dispatch<SetStateAction<AuthUser | null>>
 }
 
-export default function AuthContext({}: Props): ReactElement {
+export default function AuthContext({ children }: Props): ReactElement {
   const [user, setUser] = useState<AuthUser | null>(null)
   
   useEffect(()=>{
