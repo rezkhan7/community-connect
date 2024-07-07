@@ -17,7 +17,7 @@ interface UserContextType{
 const UserContext = createContext<UserContextType>({} as UserContextType);
 
 interface Props {
-    children: ReactElement
+    children: React.ReactElement
     setUser: Dispatch<SetStateAction<AuthUser | null>>
 }
 
