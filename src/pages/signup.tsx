@@ -58,7 +58,7 @@ export default function Signup() {
       
           console.log(userId);
         } catch (error) {
-          console.log('error signing up:', error);
+          throw error;
         }
       }
 
