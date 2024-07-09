@@ -4,6 +4,7 @@ import { Button, TextField, Grid } from '@mui/material'
 import { signUp } from 'aws-amplify/auth';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { useUser } from '@/context/AuthContext';
 
 interface IFormInput {
     username: string,
