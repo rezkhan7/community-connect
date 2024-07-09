@@ -43,6 +43,7 @@ export default function AuthContext({ children }: Props): ReactElement {
 
     }
     catch(error){
+        console.error(error)
         setUser(null)
     }
   }

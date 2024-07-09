@@ -13,13 +13,14 @@ interface IFormInput {
 }
 
 export default function Signup() {
+    const { user, setUser} = useUser();
     const [open, setOpen] = useState(false);
     const [signUpError, setSignUpError] = useState<string>("");
 
     const { register, formState: {errors}, handleSubmit } = useForm<IFormInput>();
 
     const onSubmit: SubmitHandler<IFormInput> = async (data)=>{
-        console.log('Success')
+
         console.log(data)
 
         try{
@@ -63,7 +64,7 @@ export default function Signup() {
         }
       }
 
-
+    console.log("The value from the hook is:", user)
     return(
         <form onSubmit = {handleSubmit(onSubmit)} autoComplete='off'>
           <Grid
