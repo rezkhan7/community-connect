@@ -9,13 +9,15 @@ import { useUser } from '@/context/AuthContext';
 interface IFormInput {
     username: string,
     email: string,
-    password: string
+    password: string,
+    code: string
 }
 
 export default function Signup() {
     const { user, setUser} = useUser();
     const [open, setOpen] = useState(false);
     const [signUpError, setSignUpError] = useState<string>("");
+    const [showCode, setShowCode] = useState<boolean>(false);
 
     const { register, formState: {errors}, handleSubmit } = useForm<IFormInput>();
 
@@ -129,6 +131,31 @@ export default function Signup() {
                     })} 
                 />
             </Grid>
+         { showCode &&
+            <Grid item>
+                <TextField
+                    variant= 'outlined'
+                    id = 'code' 
+                    label = 'Verification Code'
+                    type = 'text'
+                    error = {errors.code ? true : false}
+                    helperText = {errors.code ? errors.code.message : null}
+                    {...register('code', {
+                        required: {value: true, message: 'Please enter a code.'},
+                        minLength: {
+                            value: 6,
+                            message: 'Invalid verification code'
+                        },
+                        maxLength: {
+                            value: 6,
+                            message: 'Invalid verification code'
+                        }
+    
+                    })} 
+                />
+            </Grid>}
+
+
 
             <Grid style={{marginTop: "16px"}}>
                 <Button variant='contained' type='submit'> Sign up</Button>
