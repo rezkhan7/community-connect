@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { Button, TextField, Grid } from '@mui/material'
-import { signUp } from 'aws-amplify/auth';
+import { signUp, confirmSignUp } from 'aws-amplify/auth';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useUser } from '@/context/AuthContext';
@@ -26,7 +26,7 @@ export default function Signup() {
         console.log(data)
 
         try{
-            handleSignUp(data);
+           await handleSignUp(data);
         }
         catch(err){
             console.error(err);
@@ -56,11 +56,16 @@ export default function Signup() {
                 email
               },
               // optional
-              autoSignIn: true // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
+              autoSignIn: { enabled: true } // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
             }
           });
+
+          if(nextStep.signUpStep === "CONFIRM_SIGN_UP"){
+            setShowCode(true);
+          }
       
           console.log(userId);
+
         } catch (error) {
           throw error;
         }
