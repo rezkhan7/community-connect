@@ -18,21 +18,13 @@ export default function Signup() {
     const [open, setOpen] = useState(false);
     const [signUpError, setSignUpError] = useState<string>("");
     const [showCode, setShowCode] = useState<boolean>(false);
+    const [username, setUsername] = useState<string>("");
 
     const { register, formState: {errors}, handleSubmit } = useForm<IFormInput>();
 
     const onSubmit: SubmitHandler<IFormInput> = async (data)=>{
-
-        console.log(data)
-
-        try{
-           await handleSignUp(data);
-        }
-        catch(err){
-            console.error(err);
-            setOpen(true);
-            setSignUpError(err.message);
-        }
+        showCode ? handleConfirmSignUp(data) : handleSignUp(data)
+        
     }
     console.log("Errors:", errors)
 
@@ -59,9 +51,11 @@ export default function Signup() {
               autoSignIn: { enabled: true } // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
             }
           });
-
+          
+          console.log(isSignUpComplete)
           if(nextStep.signUpStep === "CONFIRM_SIGN_UP"){
             setShowCode(true);
+            setUsername(username);
           }
       
           console.log(userId);
@@ -70,6 +64,28 @@ export default function Signup() {
           throw error;
         }
       }
+    
+    async function handleConfirmSignUp(data: IFormInput){
+        const { code } = data;
+        try{
+            const { isSignUpComplete, nextStep } = await confirmSignUp({
+                username,
+                confirmationCode: code
+            });
+            console.log(isSignUpComplete)
+            if(isSignUpComplete){
+                console.log("SUCCESS");
+            }
+            else{
+                console.log("FAILURE")
+            }
+        } catch (error) {
+            console.error(error);
+            setOpen(true);
+            setSignUpError(error.message);
+        }
+
+    }
 
     console.log("The value from the hook is:", user)
     return(
