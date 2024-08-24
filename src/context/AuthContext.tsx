@@ -23,12 +23,7 @@ interface Props {
 
 export default function AuthContext({ children }: Props): ReactElement {
   const [user, setUser] = useState<AuthUser | null>(null)
-  
-  useEffect(()=>{
-    checkUser();
-  }, [])
-
-  useEffect(()=>{
+    useEffect(()=>{
     Hub.listen('auth', ()=>{
         checkUser();
     })
