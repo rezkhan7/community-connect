@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button, TextField, Grid } from '@mui/material';
-import { signUp, confirmSignUp } from 'aws-amplify/auth';
+import { signUp, confirmSignUp, signIn } from 'aws-amplify/auth';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useUser } from '@/context/AuthContext';
@@ -70,7 +70,11 @@ export default function Signup() {
                 confirmationCode: code
             });
             
+           // const amplifyUser = await signIn({username: username, password:'edeed777' })
+            console.log("Successs, singed in a user", amplifyUser);
+
             console.log("Confirm signup result:", result);
+
             if (result?.isSignUpComplete) {
                 console.log("Sign-up confirmation successful");
             } else {
@@ -82,7 +86,12 @@ export default function Signup() {
             setOpen(true);
         }
     }
+    
     console.log("Signed in user:", user)
+    useEffect(() => {
+        console.log("User changed to: ", user); 
+      }, [user]);
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
             <Grid
