@@ -25,35 +25,33 @@ export default function AuthContext({ children }: Props): ReactElement {
   const [user, setUser] = useState<GetCurrentUserOutput | null>(null)
 
   useEffect(() => {
+    const checkUser = async (): Promise<void> => {
+      try {
+        const amplifyUser = await getCurrentUser();
+        console.log("Amplify User: ", amplifyUser);
+        if (amplifyUser) {
+          setUser(amplifyUser);
+          console.log("Signed in user: ", amplifyUser);
+        }
+      } catch (error) {
+        console.error(error);
+        setUser(null);
+      }
+    };
+
     checkUser(); // Initial user check
 
     const listener = Hub.listen('auth', () => {
-        console.log("Auth event triggered");
-        checkUser(); // Re-check user on auth events
+      console.log("Auth event triggered");
+      checkUser(); // Re-check user on auth events
     });
 
     // Clean up the listener when the component unmounts
-    return listener();
-}, []);
+    return () => {
+      listener(); // Cleanup function called here
+    };
+  }, []);
 
-  const checkUser = async ():Promise<void> => {
-    try{
-        const amplifyUser = await getCurrentUser()
-        console.log("Amplify User: ", amplifyUser)
-
-        if(amplifyUser){
-
-            setUser(amplifyUser)
-            console.log("Signed in user: ", amplifyUser);
-        }
-
-    }
-    catch(error){
-        console.error(error)
-        console.log("Not working here")
-        setUser(null)
-    }
-  }
 
 
 

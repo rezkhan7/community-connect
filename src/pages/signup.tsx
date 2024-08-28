@@ -70,13 +70,13 @@ export default function Signup() {
                 confirmationCode: code
             });
             
-            const amplifyUser = await signIn({username: username, password: password })
-            console.log("Successs, singed in a user", amplifyUser);
 
             console.log("Confirm signup result:", result);
 
             if (result?.isSignUpComplete) {
                 console.log("Sign-up confirmation successful");
+                const amplifyUser = await signIn({username: username, password: password })
+                console.log("Successs, singed in a user", amplifyUser);
 
             } else {
                 console.log("Sign-up confirmation failed");
