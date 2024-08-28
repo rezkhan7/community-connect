@@ -164,7 +164,7 @@ export default function Signup() {
 
                 <Grid style={{ marginTop: "16px" }}>
                     <Button variant='contained' type='submit'> Sign Up</Button>
-                    <Button onClick={async () => await signOut()}>Sign Out</Button>
+                   {/* <Button onClick={async () => await signOut()}>Sign Out</Button> */} 
                 </Grid>
             </Grid>
 
