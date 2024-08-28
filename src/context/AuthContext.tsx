@@ -44,7 +44,7 @@ export default function AuthContext({ children }: Props): ReactElement {
         if(amplifyUser){
 
             setUser(amplifyUser)
-            console.log("User set to: ", amplifyUser);
+            console.log("Signed in user: ", amplifyUser);
         }
 
     }

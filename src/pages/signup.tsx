@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button, TextField, Grid } from '@mui/material';
-import { signUp, confirmSignUp, signIn } from 'aws-amplify/auth';
+import { signUp, confirmSignUp, signIn, signOut } from 'aws-amplify/auth';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useUser } from '@/context/AuthContext';
@@ -63,23 +63,25 @@ export default function Signup() {
     }
 
     async function handleConfirmSignUp(data: IFormInput) {
-        const { code } = data;
+        const { username, password, code } = data;
         try {
             const result = await confirmSignUp({
                 username,
                 confirmationCode: code
             });
             
-           // const amplifyUser = await signIn({username: username, password:'edeed777' })
+            const amplifyUser = await signIn({username: username, password: password })
             console.log("Successs, singed in a user", amplifyUser);
 
             console.log("Confirm signup result:", result);
 
             if (result?.isSignUpComplete) {
                 console.log("Sign-up confirmation successful");
+
             } else {
                 console.log("Sign-up confirmation failed");
             }
+            
         } catch (error) {
             console.error("Confirm sign-up error:", error);
             setSignUpError(error.message || "Confirmation failed. Please try again.");
@@ -87,10 +89,6 @@ export default function Signup() {
         }
     }
     
-    console.log("Signed in user:", user)
-    useEffect(() => {
-        console.log("User changed to: ", user); 
-      }, [user]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
@@ -166,6 +164,7 @@ export default function Signup() {
 
                 <Grid style={{ marginTop: "16px" }}>
                     <Button variant='contained' type='submit'> Sign Up</Button>
+                    <Button onClick={async () => await signOut()}>Sign Out</Button>
                 </Grid>
             </Grid>
 
