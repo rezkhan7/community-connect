@@ -5,6 +5,7 @@ import { signUp, confirmSignUp, signIn, signOut } from 'aws-amplify/auth';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useUser } from '@/context/AuthContext';
+import { useRouter } from 'next/router';
 
 interface IFormInput {
     username: string;
@@ -15,6 +16,7 @@ interface IFormInput {
 
 export default function Signup() {
     const { user, setUser } = useUser();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [signUpError, setSignUpError] = useState<string>("");
     const [showCode, setShowCode] = useState<boolean>(false);
@@ -76,7 +78,14 @@ export default function Signup() {
             if (result?.isSignUpComplete) {
                 console.log("Sign-up confirmation successful");
                 const amplifyUser = await signIn({username: username, password: password })
-                console.log("Successs, singed in a user", amplifyUser);
+
+                if(amplifyUser){
+                    console.log("Successs, singed in a user", amplifyUser);
+                    router.push('/')
+                }
+                else{
+                    throw new Error("Something went wrong, please try again")
+                }
 
             } else {
                 console.log("Sign-up confirmation failed");
