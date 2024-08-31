@@ -1,147 +1,187 @@
-import React, { useState } from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
-import { Button, TextField, Grid } from '@mui/material'
-import { signUp } from 'aws-amplify/auth';
+import React, { useState, useEffect } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { Button, TextField, Grid } from '@mui/material';
+import { signUp, confirmSignUp, signIn, signOut } from 'aws-amplify/auth';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { useUser } from '@/context/AuthContext';
+import { useRouter } from 'next/router';
 
 interface IFormInput {
-    username: string,
-    email: string,
-    password: string
+    username: string;
+    email: string;
+    password: string;
+    code: string;
 }
 
 export default function Signup() {
+    const { user, setUser } = useUser();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [signUpError, setSignUpError] = useState<string>("");
+    const [showCode, setShowCode] = useState<boolean>(false);
+    const [username, setUsername] = useState<string>("");
 
-    const { register, formState: {errors}, handleSubmit } = useForm<IFormInput>();
+    const { register, formState: { errors }, handleSubmit } = useForm<IFormInput>();
 
-    const onSubmit: SubmitHandler<IFormInput> = async (data)=>{
-        console.log('Success')
-        console.log(data)
-
-        try{
-            handleSignUp(data);
-        }
-        catch(err){
-            console.error(err);
-            setOpen(true);
-            setSignUpError(err.message);
-        }
-    }
-    console.log("Errors:", errors)
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        showCode ? await handleConfirmSignUp(data) : await handleSignUp(data);
+    };
 
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
-          return;
+            return;
         }
-    
         setOpen(false);
-      };
-    
+    };
 
     async function handleSignUp(data: IFormInput) {
-        const { username, password, email } = data
+        const { username, password, email } = data;
         try {
-          const { isSignUpComplete, userId, nextStep } = await signUp({
-            username,
-            password,
-            options: {
-              userAttributes: {
-                email
-              },
-              // optional
-              autoSignIn: true // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
+            const result = await signUp({
+                username,
+                password,
+                options: {
+                    userAttributes: {
+                        email
+                    },
+                    autoSignIn: { enabled: true }
+                }
+            });
+            
+            console.log("Signup result:", result);
+            if (result?.nextStep?.signUpStep === "CONFIRM_SIGN_UP") {
+                setShowCode(true);
+                setUsername(username);
+            } else {
+                // Handle other cases or automatically log the user in
             }
-          });
-      
-          console.log(userId);
+
         } catch (error) {
-          throw error;
+            console.error("SignUp error:", error);
+            setSignUpError(error.message || "Sign-up failed. Please try again.");
+            setOpen(true);
         }
-      }
+    }
 
+    async function handleConfirmSignUp(data: IFormInput) {
+        const { username, password, code } = data;
+        try {
+            const result = await confirmSignUp({
+                username,
+                confirmationCode: code
+            });
+            
 
-    return(
-        <form onSubmit = {handleSubmit(onSubmit)} autoComplete='off'>
-          <Grid
-            container
-            direction = 'column'
-            alignItems = 'center'
-            justifyContent = 'center'
-            style={{ paddingTop: '1.25rem' }}
-          >
-            <Grid item>
-                <TextField
-                    variant= 'outlined'
-                    id = 'username' 
-                    label = 'Username'
-                    type = 'text'
-                    error = {errors.username ? true : false}
-                    helperText = {errors.username ? errors.username.message : null}
-                    {...register('username', {
-                        required: {value: true, message: 'Please enter a username.'},
-                        minLength: {
-                            value: 3,
-                            message: 'Please enter a username between 3-16 characters'
-                        },
-                        maxLength: {
-                            value: 16,
-                            message: 'Please enter a username between 3-16 characters'
-                        }
-                    })} 
-                />
-            </Grid>
+            console.log("Confirm signup result:", result);
 
-            <Grid item>
-                <TextField
-                    variant= 'outlined'
-                    id = 'email' 
-                    label = 'Email'
-                    type = 'email'
-                    error = {errors.email ? true : false}
-                    helperText = {errors.email ? errors.email.message : null}
-                    {...register('email', {
-                        required: {value: true, message: 'Please enter a valid email.'},
+            if (result?.isSignUpComplete) {
+                console.log("Sign-up confirmation successful");
+                const amplifyUser = await signIn({username: username, password: password })
+
+                if(amplifyUser){
+                    console.log("Successs, singed in a user", amplifyUser);
+                    router.push('/')
+                }
+                else{
+                    throw new Error("Something went wrong, please try again")
+                }
+
+            } else {
+                console.log("Sign-up confirmation failed");
+            }
+            
+        } catch (error) {
+            console.error("Confirm sign-up error:", error);
+            setSignUpError(error.message || "Confirmation failed. Please try again.");
+            setOpen(true);
+        }
+    }
     
-                    })} 
-                />
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
+            <Grid
+                container
+                direction='column'
+                alignItems='center'
+                justifyContent='center'
+                style={{ paddingTop: '1.25rem' }}
+            >
+                <Grid item>
+                    <TextField
+                        variant='outlined'
+                        id='username'
+                        label='Username'
+                        type='text'
+                        error={!!errors.username}
+                        helperText={errors.username?.message}
+                        {...register('username', {
+                            required: { value: true, message: 'Please enter a username.' },
+                            minLength: { value: 3, message: 'Username must be between 3-16 characters.' },
+                            maxLength: { value: 16, message: 'Username must be between 3-16 characters.' }
+                        })}
+                    />
+                </Grid>
+
+                <Grid item>
+                    <TextField
+                        variant='outlined'
+                        id='email'
+                        label='Email'
+                        type='email'
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                        {...register('email', {
+                            required: { value: true, message: 'Please enter a valid email.' },
+                        })}
+                    />
+                </Grid>
+
+                <Grid item>
+                    <TextField
+                        variant='outlined'
+                        id='password'
+                        label='Password'
+                        type='password'
+                        error={!!errors.password}
+                        helperText={errors.password?.message}
+                        {...register('password', {
+                            required: { value: true, message: 'Please enter a password.' },
+                            minLength: { value: 8, message: 'Password must be at least 8 characters long.' },
+                        })}
+                    />
+                </Grid>
+
+                {showCode && (
+                    <Grid item>
+                        <TextField
+                            variant='outlined'
+                            id='code'
+                            label='Verification Code'
+                            type='text'
+                            error={!!errors.code}
+                            helperText={errors.code?.message}
+                            {...register('code', {
+                                required: { value: true, message: 'Please enter the verification code.' },
+                                minLength: { value: 6, message: 'Invalid verification code.' },
+                                maxLength: { value: 6, message: 'Invalid verification code.' }
+                            })}
+                        />
+                    </Grid>
+                )}
+
+                <Grid style={{ marginTop: "16px" }}>
+                    <Button variant='contained' type='submit'> Sign Up</Button>
+                   {/* <Button onClick={async () => await signOut()}>Sign Out</Button> */} 
+                </Grid>
             </Grid>
 
-            <Grid item>
-                <TextField
-                    variant= 'outlined'
-                    id = 'password' 
-                    label = 'Password'
-                    type = 'password'
-                    error = {errors.password ? true : false}
-                    helperText = {errors.password ? errors.password.message : null}
-                    {...register('password', {
-                        required: {value: true, message: 'Please enter a password.'},
-                        minLength: {
-                            value: 8,
-                            message: 'Please enter a stronger password'
-                        },
-                      
-                    })} 
-                />
-            </Grid>
-
-            <Grid style={{marginTop: "16px"}}>
-                <Button variant='contained' type='submit'> Sign up</Button>
-            </Grid>
-          </Grid>
-          
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert
-                    onClose={handleClose}
-                    severity="error"
-                >
+                <Alert onClose={handleClose} severity="error">
                     {signUpError}
                 </Alert>
             </Snackbar>
         </form>
-    )
+    );
 }
-

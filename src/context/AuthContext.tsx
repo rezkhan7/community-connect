@@ -7,11 +7,11 @@ import {
     useContext, 
     useState } from "react";
 import { Hub } from "aws-amplify/utils";
-import { getCurrentUser, AuthUser } from "aws-amplify/auth";
+import { getCurrentUser, AuthUser, GetCurrentUserOutput} from "aws-amplify/auth";
 
 interface UserContextType{
-    user: AuthUser | null;
-    setUser: Dispatch<SetStateAction<AuthUser | null>>
+    user: GetCurrentUserOutput | null;
+    setUser: Dispatch<SetStateAction<GetCurrentUserOutput | null>>;
 }
 
 const UserContext = createContext<UserContextType>({} as UserContextType);
@@ -22,30 +22,39 @@ interface Props {
 }
 
 export default function AuthContext({ children }: Props): ReactElement {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  
-  useEffect(()=>{
-    checkUser();
-  }, [])
+  const [user, setUser] = useState<GetCurrentUserOutput | null>(null)
 
-  useEffect(()=>{
-    Hub.listen('auth', ()=>{
-        checkUser();
-    })
-  }, [])
-
-  async function checkUser() {
-    try{
-        const amplifyUser = await getCurrentUser()
-        if(amplifyUser){
-            setUser(amplifyUser)
+  useEffect(() => {
+    const checkUser = async (): Promise<void> => {
+      try {
+        const amplifyUser = await getCurrentUser();
+        console.log("Amplify User: ", amplifyUser);
+        if (amplifyUser) {
+          setUser(amplifyUser);
+          console.log("Signed in user: ", amplifyUser);
         }
+      } catch (error) {
+        console.error(error);
+        setUser(null);
+      }
+    };
 
-    }
-    catch(error){
-        setUser(null)
-    }
-  }
+    checkUser(); // Initial user check
+
+    const listener = Hub.listen('auth', () => {
+      console.log("Auth event triggered");
+      checkUser(); // Re-check user on auth events
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => {
+      listener(); // Cleanup function called here
+    };
+  }, []);
+
+
+
+
 
   return (
     <UserContext.Provider
